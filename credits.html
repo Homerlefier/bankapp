@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Credits</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body style="padding:20px;padding-bottom:100px">
+<div style="display:flex;align-items:center;gap:16px;margin-bottom:30px">
+<button style="width:40px;height:40px;background:var(--revolut-card);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;border:none" onclick="window.location.href='index.html'" id="backBtn"></button>
+<div style="font-size:28px;font-weight:700">Credits</div>
+</div>
+<div style="background:var(--revolut-card);border-radius:16px;padding:40px;text-align:center">
+<div style="font-size:48px;margin-bottom:16px">📱</div>
+<div style="font-size:20px;font-weight:700;margin-bottom:8px">Page fonctionnelle bientôt disponible</div>
+<div style="color:var(--revolut-text-secondary);margin-bottom:20px">Cette page est en cours de développement</div>
+<button class="btn btn-primary" onclick="window.location.href='index.html'" style="margin-top:20px">Retour à l'accueil</button>
+</div>
+<div class="bottom-nav">
+<div class="nav-item" onclick="window.location.href='index.html'"><div id="n1"></div><div class="nav-label">Accueil</div></div>
+<div class="nav-item" onclick="window.location.href='analytics.html'"><div id="n2"></div><div class="nav-label">Analytique</div></div>
+<div class="nav-item" onclick="window.location.href='virement.html'"><div id="n3"></div><div class="nav-label">Virements</div></div>
+<div class="nav-item" onclick="window.location.href='cards.html'"><div id="n4"></div><div class="nav-label">Cartes</div></div>
+<div class="nav-item" onclick="window.location.href='menu.html'"><div id="n5"></div><div class="nav-label">Plus</div></div>
+</div>
+<script src="icons.js"></script>
+<script>
+document.getElementById('backBtn').innerHTML=Icons.back;
+document.getElementById('n1').innerHTML=Icons.home;
+document.getElementById('n2').innerHTML=Icons.stats;
+document.getElementById('n3').innerHTML=Icons.transfer;
+document.getElementById('n4').innerHTML=Icons.card;
+document.getElementById('n5').innerHTML=Icons.menu;
+</script>
+</body>
+</html>

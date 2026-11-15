@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Virement</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+body{padding:20px;padding-bottom:100px}
+.page-header{display:flex;align-items:center;gap:16px;margin-bottom:30px}
+.back-button{width:40px;height:40px;background:var(--revolut-card);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:white;border:none}
+.page-title{font-size:28px;font-weight:700}
+.form-card{background:var(--revolut-card);border-radius:16px;padding:20px;margin-bottom:16px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--revolut-text-secondary);margin-bottom:8px}
+.form-group{margin-bottom:20px}
+.account-selector{background:var(--revolut-card);border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;margin-bottom:20px;cursor:pointer}
+.account-icon-sm{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.account-info-sm{flex:1}
+.account-name-sm{font-size:15px;font-weight:600;margin-bottom:2px}
+.account-balance-sm{font-size:13px;color:var(--revolut-text-secondary)}
+.success-icon{width:80px;height:80px;background:var(--revolut-green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 20px;animation:scaleIn 0.4s}
+@keyframes scaleIn{0%{transform:scale(0)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+</style>
+</head>
+<body>
+<div class="page-header">
+<button class="back-button" onclick="window.location.href='index.html'" id="backBtn"></button>
+<div class="page-title">Nouveau virement</div>
+</div>
+<div class="form-card">
+<label class="form-label">Depuis le compte</label>
+<div class="account-selector">
+<div class="account-icon-sm" id="selectedAccountIcon" style="background:#0066FF20;color:#0066FF"></div>
+<div class="account-info-sm">
+<div class="account-name-sm" id="selectedAccountName">Compte Principal</div>
+<div class="account-balance-sm" id="selectedAccountBalance">0,00 €</div>
+</div>
+</div>
+</div>
+<div class="form-card">
+<div class="form-group">
+<label class="form-label">Nom du bénéficiaire</label>
+<input type="text" id="beneficiary" placeholder="Ex: Marie Dupont"/>
+</div>
+<div class="form-group">
+<label class="form-label">IBAN</label>
+<input type="text" id="iban" placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX"/>
+</div>
+<div class="form-group">
+<label class="form-label">Nom de la banque (optionnel)</label>
+<input type="text" id="bankName" placeholder="Ex: BNP Paribas"/>
+</div>
+</div>
+<div class="form-card">
+<label class="form-label">Montant du virement</label>
+<input type="number" id="amount" placeholder="0,00" step="0.01" style="font-size:32px;text-align:center;font-weight:700"/>
+</div>
+<button class="btn btn-primary" onclick="initiateTransfer()">Continuer</button>
+
+<div id="confirmModal" class="modal-overlay hidden">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">Confirmer le virement</div>
+<button class="modal-close" onclick="closeConfirm()">×</button>
+</div>
+<div id="confirmDetails"></div>
+<div style="margin-top:20px">
+<button class="btn btn-primary" onclick="executeTransfer()" style="margin-bottom:10px">Confirmer</button>
+<button class="btn btn-secondary" onclick="closeConfirm()">Annuler</button>
+</div>
+</div>
+</div>
+
+<div id="loadingModal" class="modal-overlay hidden">
+<div class="modal-content" style="text-align:center">
+<div style="font-size:20px;font-weight:700;margin-bottom:20px">Traitement en cours...</div>
+<div class="loader"></div>
+<div style="font-size:13px;color:var(--revolut-text-secondary);margin-top:20px">Cela peut prendre quelques instants</div>
+</div>
+</div>
+
+<div id="successModal" class="modal-overlay hidden">
+<div class="modal-content" style="text-align:center">
+<div class="success-icon" id="successIcon"></div>
+<div style="font-size:24px;font-weight:700;margin-bottom:12px">Virement effectué !</div>
+<div style="font-size:36px;font-weight:700;color:var(--revolut-green);margin-bottom:20px" id="successAmount">0 €</div>
+<div id="successDetails"></div>
+<button class="btn btn-primary" onclick="finishTransfer()" style="margin-top:20px">Terminé</button>
+</div>
+</div>
+
+<div class="bottom-nav">
+<div class="nav-item" onclick="window.location.href='index.html'"><div id="n1"></div><div class="nav-label">Accueil</div></div>
+<div class="nav-item" onclick="window.location.href='analytics.html'"><div id="n2"></div><div class="nav-label">Analytique</div></div>
+<div class="nav-item active" onclick="window.location.href='virement.html'"><div id="n3"></div><div class="nav-label">Virements</div></div>
+<div class="nav-item" onclick="window.location.href='cards.html'"><div id="n4"></div><div class="nav-label">Cartes</div></div>
+<div class="nav-item" onclick="window.location.href='menu.html'"><div id="n5"></div><div class="nav-label">Plus</div></div>
+</div>
+
+<script src="icons.js"></script>
+<script src="database.js"></script>
+<script>
+document.getElementById('backBtn').innerHTML=Icons.back;
+document.getElementById('selectedAccountIcon').innerHTML=Icons.account;
+document.getElementById('n1').innerHTML=Icons.home;
+document.getElementById('n2').innerHTML=Icons.stats;
+document.getElementById('n3').innerHTML=Icons.transfer;
+document.getElementById('n4').innerHTML=Icons.card;
+document.getElementById('n5').innerHTML=Icons.menu;
+document.getElementById('successIcon').innerHTML=Icons.check;
+
+let selectedAccountId=1;
+let transferData={};
+
+function loadAccountData(){
+const account=DB.getAccount(selectedAccountId);
+document.getElementById('selectedAccountName').textContent=account.name;
+document.getElementById('selectedAccountBalance').textContent=formatCurrency(account.balance);
+}
+
+function initiateTransfer(){
+const beneficiary=document.getElementById('beneficiary').value.trim();
+const iban=document.getElementById('iban').value.trim();
+const amount=parseFloat(document.getElementById('amount').value);
+const bankName=document.getElementById('bankName').value.trim()||'Banque inconnue';
+
+if(!beneficiary||!iban||!amount||amount<=0){
+showToast('Veuillez remplir tous les champs','error');
+return;
+}
+
+const account=DB.getAccount(selectedAccountId);
+if(account.balance<amount){
+showToast('Solde insuffisant','error');
+return;
+}
+
+transferData={beneficiary,iban,amount,bankName};
+
+document.getElementById('confirmDetails').innerHTML=`
+<div style="background:var(--revolut-gray);border-radius:12px;padding:16px;margin:12px 0;text-align:left">
+<div style="font-size:13px;color:var(--revolut-text-secondary);margin-bottom:4px">De</div>
+<div style="font-size:15px;font-weight:600">${account.name}</div>
+</div>
+<div style="background:var(--revolut-gray);border-radius:12px;padding:16px;margin:12px 0;text-align:left">
+<div style="font-size:13px;color:var(--revolut-text-secondary);margin-bottom:4px">Vers</div>
+<div style="font-size:15px;font-weight:600">${beneficiary}</div>
+</div>
+<div style="background:var(--revolut-gray);border-radius:12px;padding:16px;margin:12px 0;text-align:left">
+<div style="font-size:13px;color:var(--revolut-text-secondary);margin-bottom:4px">IBAN</div>
+<div style="font-size:15px;font-weight:600">${iban}</div>
+</div>
+<div style="background:var(--revolut-gray);border-radius:12px;padding:16px;margin:12px 0;text-align:left">
+<div style="font-size:13px;color:var(--revolut-text-secondary);margin-bottom:4px">Montant</div>
+<div style="font-size:24px;font-weight:700;color:var(--revolut-red)">${formatCurrency(amount)}</div>
+</div>
+`;
+
+document.getElementById('confirmModal').classList.remove('hidden');
+}
+
+function closeConfirm(){
+document.getElementById('confirmModal').classList.add('hidden');
+}
+
+function executeTransfer(){
+closeConfirm();
+document.getElementById('loadingModal').classList.remove('hidden');
+
+setTimeout(()=>{
+const result=DB.makeTransfer(selectedAccountId,transferData.iban,transferData.amount,transferData.beneficiary,transferData.bankName);
+
+document.getElementById('loadingModal').classList.add('hidden');
+
+if(result.success){
+document.getElementById('successAmount').textContent=formatCurrency(transferData.amount);
+
+const now=new Date();
+const isWeekend=now.getDay()===0||now.getDay()===6;
+
+document.getElementById('successDetails').innerHTML=`
+<div style="background:var(--revolut-gray);border-radius:12px;padding:16px;margin:12px 0;text-align:left">
+<div style="font-size:13px;color:var(--revolut-text-secondary);margin-bottom:4px">Bénéficiaire</div>
+<div style="font-size:15px;font-weight:600">${transferData.beneficiary}</div>
+</div>
+<div style="background:var(--revolut-gray);border-radius:12px;padding:16px;margin:12px 0;text-align:left">
+<div style="font-size:13px;color:var(--revolut-text-secondary);margin-bottom:4px">Date</div>
+<div style="font-size:15px;font-weight:600">${formatDate(now.toISOString())}</div>
+</div>
+${isWeekend?`
+<div style="background:rgba(255,159,10,0.15);border-left:3px solid var(--revolut-orange);padding:14px;border-radius:8px;margin-top:12px;font-size:13px;text-align:left;line-height:1.5">
+⚠️ Nos services sont momentanément saturés - Le virement arrivera dans 1 à 2 heures
+</div>
+`:`
+<div style="background:rgba(52,199,89,0.15);border-left:3px solid var(--revolut-green);padding:14px;border-radius:8px;margin-top:12px;font-size:13px;text-align:left;line-height:1.5">
+✓ Virement instantané - Arrivée dans quelques minutes
+</div>
+`}
+`;
+
+document.getElementById('successModal').classList.remove('hidden');
+showToast('Virement effectué avec succès','success');
+}else{
+showToast(result.error,'error');
+}
+},10000);
+}
+
+function finishTransfer(){
+window.location.href='index.html';
+}
+
+window.addEventListener('DOMContentLoaded',loadAccountData);
+</script>
+</body>
+</html>

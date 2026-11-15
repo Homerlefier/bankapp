@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>BankApp</title><link rel="stylesheet" href="styles.css"></head>
+<body>
+<div class="lock-screen">
+<div class="lock-logo" id="logoContainer"></div>
+<div class="lock-greeting">Bonjour Nino !</div>
+<div class="pin-dots">
+<div class="pin-dot" id="dot1"></div><div class="pin-dot" id="dot2"></div><div class="pin-dot" id="dot3"></div>
+<div class="pin-dot" id="dot4"></div><div class="pin-dot" id="dot5"></div><div class="pin-dot" id="dot6"></div>
+</div>
+<div class="keypad">
+<button class="key" onclick="enterDigit('1')">1</button><button class="key" onclick="enterDigit('2')">2</button><button class="key" onclick="enterDigit('3')">3</button>
+<button class="key" onclick="enterDigit('4')">4</button><button class="key" onclick="enterDigit('5')">5</button><button class="key" onclick="enterDigit('6')">6</button>
+<button class="key" onclick="enterDigit('7')">7</button><button class="key" onclick="enterDigit('8')">8</button><button class="key" onclick="enterDigit('9')">9</button>
+<button class="key empty"></button><button class="key" onclick="enterDigit('0')">0</button><button class="key" onclick="deleteDigit()">⌫</button>
+</div>
+<a href="#" class="forgot-pin" onclick="forgotPin();return false;">Mot de passe oublié ?</a>
+</div>
+<script src="icons.js"></script>
+<script src="database.js"></script>
+<script>
+let enteredPIN='';const correctPIN='200506';
+document.getElementById('logoContainer').innerHTML=Icons.logo;
+function enterDigit(digit){if(enteredPIN.length<6){enteredPIN+=digit;updateDots();if(enteredPIN.length===6)checkPIN()}}
+function deleteDigit(){if(enteredPIN.length>0){enteredPIN=enteredPIN.slice(0,-1);updateDots()}}
+function updateDots(){for(let i=1;i<=6;i++){const dot=document.getElementById(`dot${i}`);dot.classList.remove('filled','error');if(i<=enteredPIN.length)dot.classList.add('filled')}}
+function checkPIN(){if(enteredPIN===correctPIN){for(let i=1;i<=6;i++)document.getElementById(`dot${i}`).classList.add('filled');setTimeout(()=>window.location.href='index.html',500)}else{for(let i=1;i<=6;i++)document.getElementById(`dot${i}`).classList.add('error');if(navigator.vibrate)navigator.vibrate([100,50,100]);setTimeout(()=>{enteredPIN='';updateDots()},500)}}
+function forgotPin(){alert('Code PIN : 200506')}
+document.addEventListener('keydown',(e)=>{if(e.key>='0'&&e.key<='9')enterDigit(e.key);else if(e.key==='Backspace')deleteDigit();else if(e.key==='Enter'&&enteredPIN.length===6)checkPIN()});
+</script>
+</body>
+</html>
